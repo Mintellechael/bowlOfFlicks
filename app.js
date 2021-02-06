@@ -38,26 +38,31 @@ app.post("/index.html", function(req,res){
   var yearHigh = (req.body.yearHigh);
   var maxDate = yearHigh + "-01-01";
   var minDate = yearLow + "-01-01";
+  var page = randomPage;
 
 
 
-//   if (yearLow === null && yearHigh === null){
+  if (yearLow === "" && yearHigh === ""){
+    url = "https://api.themoviedb.org/3/discover/movie?api_key=" + apiKey +
+    "&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=" + page +
+    "&with_genres=" + genre;
+  }
+  else if (yearLow != "" && yearHigh === ""){
     url = "https://api.themoviedb.org/3/discover/movie?api_key=" +
     apiKey + "&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page="+ page +"&with_genres="
-    + genre;
-//   }
-//   else if (yearLow === null || yearHigh === null){
-//     url = "https://api.themoviedb.org/3/discover/movie?api_key=" +
-//     apiKey + "&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page="+ page +"&with_genres="
-//     + genre;
-//   }
-//
-// else {
-//   url = "https://api.themoviedb.org/3/discover/movie?api_key=" +
-//   apiKey + "&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page="+ page +"&with_genres="
-//   + genre + "&primary_release_date.lte=" + maxDate + "&primary_release_date.gte=" + minDate;
-// }
-  var page = randomPage;
+    + genre + "&primary_release_date.gte=" + minDate;
+  }
+
+  else if (yearLow === "" && yearHigh != ""){
+    url = "https://api.themoviedb.org/3/discover/movie?api_key=" +
+    apiKey + "&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page="+ page +"&with_genres="
+    + genre + "&primary_release_date.lte=" + maxDate;
+  }
+else {
+  url = "https://api.themoviedb.org/3/discover/movie?api_key=" +
+  apiKey + "&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page="+ page +"&with_genres="
+  + genre + "&primary_release_date.lte=" + maxDate + "&primary_release_date.gte=" + minDate;
+}
 
 
 
@@ -70,79 +75,127 @@ app.post("/index.html", function(req,res){
     }).on('end', function() {
       var data = Buffer.concat(chunks);
       var movieData = JSON.parse(data);
+      var randomMoviePick = Math.floor(Math.random() * movieData.results.length);
+      //console.log("this is the data -> " + JSON.stringify(movieData));
+      console.log("here is the url you passed = " + url);
+      //console.log("LOOOOK    - >" + JSON.stringify(movieData.results));
+      //console.log("response" + JSON.stringify(response));
 
-     //  if(page > movieData.total_pages){
-     //    page = movieData.total_pages;
-     //    https.get(url, function(response){
-     //
-     //      var chunks = [];
-     //      response.on("data", function(data){
-     //       chunks.push(data);
-     //      }).on('end', function() {
-     //       var data = Buffer.concat(chunks);
-     //       var movieData = JSON.parse(data);
-     //       var randomMoviePick = Math.floor(Math.random() * 20);
-     //
-     //       var firstMovie = movieData.results[randomMoviePick].title;
-     //       var movieDescription = movieData.results[randomMoviePick].overview;
-     //       var year = movieData.results[randomMoviePick].release_date;
-     //       year = year.slice(0,4);
-     //       var movieID = movieData.results[0].id;
-     //       var picLink = "https://image.tmdb.org/t/p/w500/" + movieData.results[randomMoviePick].poster_path;
-     //       console.log(firstMovie);
-     //       console.log("how many movies listed" + movieData.results.length);
-     //       console.log(movieDescription);
-     //       console.log(picLink);
-     //       console.log(year.slice(0,4));
-     //       console.log("the years range from " + minDate + " to " + maxDate);
-     //       console.log("number of pages + " + movieData.total_pages);
-     //       // console.log(movieID);
-     //       //console.log(randomNumber);
-     //       //console.log(genre);
-     //
-     //       res.render('result', {
-     //         movieTitle: firstMovie,
-     //         description: movieDescription,
-     //         picture: picLink,
-     //         year: year
-     //         });
-     //
-     // });
-     //         });
-     //
-     //  }
+      if (page > JSON.stringify(movieData.total_pages)) {
+        page = movieData.total_pages;
+
+        console.log("NEW TOTAL PAGES = " + page);
+        console.log("before url = " + url);
+
+        if (yearLow === "" && yearHigh === ""){
+          url = "https://api.themoviedb.org/3/discover/movie?api_key=" + apiKey +
+          "&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=" + page +
+          "&with_genres=" + genre;
+        }
+        else if (yearLow != "" && yearHigh === ""){
+          url = "https://api.themoviedb.org/3/discover/movie?api_key=" +
+          apiKey + "&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page="+ page +"&with_genres="
+          + genre + "&primary_release_date.gte=" + minDate;
+        }
+
+        else if (yearLow === "" && yearHigh != ""){
+          url = "https://api.themoviedb.org/3/discover/movie?api_key=" +
+          apiKey + "&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page="+ page +"&with_genres="
+          + genre + "&primary_release_date.lte=" + maxDate;
+        }
+      else {
+        url = "https://api.themoviedb.org/3/discover/movie?api_key=" +
+        apiKey + "&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page="+ page +"&with_genres="
+        + genre + "&primary_release_date.lte=" + maxDate + "&primary_release_date.gte=" + minDate;
+      }
+
+      var newUrl = url;
+        console.log("after url = " + newUrl);
+        https.get(newUrl, function(response){
+
+          var chunks = [];
+          response.on("data", function(data){
+           chunks.push(data);
+          }).on('end', function() {
+           var data = Buffer.concat(chunks);
+           var movieData = JSON.parse(data);
+           var randomMoviePick = Math.floor(Math.random() * movieData.results.length);
 
 
-      var randomMoviePick = Math.floor(Math.random() * 20);
-      var firstMovie = movieData.results[randomMoviePick].title;
-      var movieDescription = movieData.results[randomMoviePick].overview;
-      var year = movieData.results[randomMoviePick].release_date;
-      year = year.slice(0,4);
-      var movieID = movieData.results[0].id;
-      var picLink = "https://image.tmdb.org/t/p/w500/" + movieData.results[randomMoviePick].poster_path;
-      console.log(firstMovie);
-      console.log("how many movies listed" + movieData.results.length);
-      console.log(movieDescription);
-      console.log(picLink);
-      console.log(year.slice(0,4));
-      console.log("the years range from " + minDate + " to " + maxDate);
-      console.log("number of pages + " + movieData.total_pages);
-      console.log(randomMoviePick);
-      // console.log(movieID);
-      //console.log(randomNumber);
-      //console.log(genre);
 
-      res.render('result', {
-        movieTitle: firstMovie,
-        description: movieDescription,
-        picture: picLink,
-        year: year
-        });
+           var firstMovie = movieData.results[randomMoviePick].title;
+           var movieDescription = movieData.results[randomMoviePick].overview;
+           var year = movieData.results[randomMoviePick].release_date;
+           year = year.slice(0,4);
+           var movieID = movieData.results[0].id;
+           var picLink = "https://image.tmdb.org/t/p/w500/" + movieData.results[randomMoviePick].poster_path;
+           console.log(firstMovie);
+           console.log("how many movies listed" + movieData.results.length);
+           console.log(movieDescription);
+           console.log(picLink);
+           console.log(year.slice(0,4));
+           console.log("the years range from " + minDate + " to " + maxDate);
+           console.log("number of pages + " + movieData.total_pages);
+           // console.log(movieID);
+           //console.log(randomNumber);
+           //console.log(genre);
+
+           res.render('result', {
+             movieTitle: firstMovie,
+             description: movieDescription,
+             picture: picLink,
+             year: year
+             });
+
+     });
+             });
+
+      }
+
+      else {
+        res.render('result', {
+          movieTitle: movieData.results[randomMoviePick].title,
+          description: movieData.results[randomMoviePick].overview,
+          picture: "https://image.tmdb.org/t/p/w500/" + movieData.results[randomMoviePick].poster_path,
+          year: movieData.results[randomMoviePick].release_date
+          });
+      }
+
+      // -------------------------------------  END OF IF ----------------------------------------
+
+   // else {
+   //    var randomMoviePick = Math.floor(Math.random() * movieData.results.length);
+   //    var movie = movieData.results[randomMoviePick].title;
+   //    var movieDescription = movieData.results[randomMoviePick].overview;
+   //    var year = movieData.results[randomMoviePick].release_date;
+   //    year = year.slice(0,4);
+   //    var movieID = movieData.results[randomMoviePick].id;
+   //    var picLink = "https://image.tmdb.org/t/p/w500/" + movieData.results[randomMoviePick].poster_path;
+   //    console.log(movie);
+   //    console.log("how many movies listed" + movieData.results.length);
+   //    console.log(movieDescription);
+   //    console.log(picLink);
+   //    console.log(year.slice(0,4));
+   //    console.log("the years range from " + minDate + " to " + maxDate);
+   //    console.log("number of pages + " + movieData.total_pages);
+   //    console.log(randomMoviePick);
+   //    // console.log(movieID);
+   //    //console.log(randomNumber);
+   //    //console.log(genre);
+   //
+   //    res.render('result', {
+   //      movieTitle: movie,
+   //      description: movieDescription,
+   //      picture: picLink,
+   //      year: year
+   //      });
+   //    }
 
 });
         });
 
    });
+
 
 
 
